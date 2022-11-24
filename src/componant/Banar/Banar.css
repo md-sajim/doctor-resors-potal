@@ -1,0 +1,19 @@
+.bg-img{
+    background-image: url(../../assets/images/bg.png);
+    background-size: cover;
+    /* background-repeat: no-repeat; */
+    /* background-size: contain; */
+    
+}
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+    .bg-img{
+        background-image: none;
+    }
+  }
+  
+  /* Small devices (portrait tablets and large phones, 600px and up) */
+  @media only screen and (min-width: 600px) {
+    .example {background: green;}
+  }
+  
