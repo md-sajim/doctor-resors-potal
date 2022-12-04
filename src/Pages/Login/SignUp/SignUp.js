@@ -3,33 +3,66 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider } from '../../../context/AuthContext';
+import useToken from '../../../hokes/useToken';
 
 const SignUp = () => {
     const { createUser, updateUserProfile } = useContext(AuthProvider)
     const [loginErr, setLoginErr] = useState('');
+    const [createdUserEmail,setCreatedUserEmail]= useState('')
+    const [token] = useToken(createdUserEmail)
     const navegate = useNavigate();
     const location = useLocation();
     const from = location?.state?.form?.pathname || '/'
+    if(token){
+        navegate(from, { replace: true })
+    }
 
     const { register, handleSubmit, formState: { errors } } = useForm()
     const onSubmit = data => {
         setLoginErr('')
-        console.log(data.email)
         const update = {
             displayName: data.name
         }
         createUser(data.email, data.pass)
             .then(result => {
                 const user = result.user;
-                console.log(user);
-                toast("success")
+                // console.log(user);
                 updateUserProfile(update)
-                .then(() =>{})
-                .catch(err => setLoginErr(err.code))
-                navegate(from, { replace: true })
+                    .then(() => {
+                        toast.success("user create success")
+                        saveUserDatabase(data.name, data.email)
+                    })
+                    .catch(err => setLoginErr(err.code))
             })
             .catch(err => setLoginErr(err.code.slice(5,)))
     }
+    const saveUserDatabase = (name, email) => {
+        const user = { name, email }
+        fetch("http://localhost:5000/user", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify(user)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.acknowledged) {
+                    setCreatedUserEmail(email)
+                }
+            })
+            .catch(err => toast.error(err))
+    }
+    // THIS IS ACCESSTOKE FUNCTION
+    // const accessToken = email => {
+    //     fetch(`http://localhost:5000/jwt?email=${email}`)
+    //         .then(res => res.json())
+    //         .then(data => {
+    //             localStorage.setItem("accessToken", data.accessToken)
+    //             navegate(from, { replace: true })
+    //         })
+
+    // }
     return (
         <div className="min-h-screen flex items-center justify-center">
             <div className="">

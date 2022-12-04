@@ -23,9 +23,11 @@ const AuthContext = ({ children }) => {
         return updateProfile(auth.currentUser, update)
     }
     useEffect(()=>{
-        const unsubscribed = onAuthStateChanged(auth, createUser =>setUser(createUser));
-        setLoder(false)
-        return ()=>unsubscribed();
+        const unsubscribed = onAuthStateChanged(auth, createUser =>{
+            setUser(createUser)
+            setLoder(false)
+        });
+        return ()=>unsubscribed;
     },[])
 
     const value = {

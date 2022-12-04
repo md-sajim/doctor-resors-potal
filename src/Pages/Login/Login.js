@@ -2,23 +2,31 @@ import React, { useContext, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form";
 import { AuthProvider } from '../../context/AuthContext';
+import useToken from '../../hokes/useToken';
 
 const Login = () => {
-    const {login} = useContext(AuthProvider)
-    const [loginErr, setLoginErr] =useState('')
+    const { login } = useContext(AuthProvider)
+    const [loginErr, setLoginErr] = useState('')
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const [loginEmail, setLoginEmail] = useState('');
+    const [token] = useToken(loginEmail)
     const navigat = useNavigate();
     const location = useLocation();
     const from = location?.state?.form?.pathname || "/"
+    if (token) {
+        navigat(from, { replace: true })
+    }
     const onSubmit = data => {
-        login(data.email,data.pass)
-        .then(result =>{
-            const user = result.user;
-            console.log(user);
-            navigat(from,{replace:true})
-        })
-    .catch(err => {
-        setLoginErr(err.code.slice(5,))})
+        login(data.email, data.pass)
+            .then(result => {
+                const user = result.user;
+                console.log(user);
+                setLoginEmail(data.email)
+
+            })
+            .catch(err => {
+                setLoginErr(err.code.slice(5,))
+            })
     };
     // console.log(watch("email")); 
 
@@ -34,20 +42,20 @@ const Login = () => {
                                 <label className="label">
                                     <span className="label-text">Email</span>
                                 </label>
-                                <input {...register("email",{required:"Please enter your email"})} type="text" className="input  input-bordered " />
+                                <input {...register("email", { required: "Please enter your email" })} type="text" className="input  input-bordered " />
                                 {errors.email && <span className='text-red-500'>{errors.email.message}</span>}
                             </div>
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Password</span>
                                 </label>
-                                <input {...register("pass",{
-                                    required:"Please enter your password...",
-                                    minLength:{
+                                <input {...register("pass", {
+                                    required: "Please enter your password...",
+                                    minLength: {
                                         value: 8,
-                                        message:"password menimum 8 digits"
+                                        message: "password menimum 8 digits"
                                     }
-                                    })} type="text" className="input  input-bordered" />
+                                })} type="text" className="input  input-bordered" />
                                 {errors.pass && <span className='text-red-500'>{errors.pass.message}</span>}
                                 {loginErr && <span className='text-red-500'>{loginErr}</span>}
                                 <label className="label">
